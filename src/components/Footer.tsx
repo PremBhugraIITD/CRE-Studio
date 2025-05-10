@@ -1,7 +1,6 @@
-
-import React from 'react';
-import { Button } from './ui/button';
-import { ExternalLink } from 'lucide-react';
+import React from "react";
+import { Button } from "./ui/button";
+import { ExternalLink } from "lucide-react";
 
 const Footer = () => {
   const teamMembers = [
@@ -10,7 +9,7 @@ const Footer = () => {
     { name: "Team Member 3", email: "member3@example.com" },
     { name: "Team Member 4", email: "member4@example.com" },
   ];
-  
+
   return (
     <footer className="bg-cre-navy text-white py-8">
       <div className="container mx-auto px-4">
@@ -30,23 +29,23 @@ const Footer = () => {
               <p className="text-sm text-gray-300">Dr. Jane Smith</p>
             </div>
           </div>
-          
+
           <div className="flex flex-col justify-between">
             <div>
               <h3 className="text-xl font-bold mb-4">Links</h3>
               <div className="flex flex-col space-y-3">
-                <a 
-                  href="https://home.iitd.ac.in/" 
-                  target="_blank" 
+                <a
+                  href="https://home.iitd.ac.in/"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center hover:text-cre-teal transition-colors"
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   IIT Delhi
                 </a>
-                <a 
-                  href="https://www.google.com" 
-                  target="_blank" 
+                <a
+                  href="https://www.google.com"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center hover:text-cre-teal transition-colors"
                 >
@@ -55,9 +54,10 @@ const Footer = () => {
                 </a>
               </div>
             </div>
-            
+
             <p className="text-sm mt-6 text-gray-300">
-              © {new Date().getFullYear()} Chemical Reaction Engineering Calculator
+              © {new Date().getFullYear()} Chemical Reaction Engineering
+              Calculator
             </p>
           </div>
         </div>
