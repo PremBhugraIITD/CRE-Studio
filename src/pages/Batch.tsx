@@ -9,39 +9,50 @@ const Batch = () => {
     { label: "Reaction Order (n)", name: "order", unit: "" },
     { label: "Temperature T (K)", name: "temperature", unit: "K" },
     { label: "k @ 300 K (1/s)", name: "k300", unit: "1/s" },
-    { label: "Activation Energy Eₐ (kJ/mol)", name: "activationEnergy", unit: "kJ/mol" },
+    {
+      label: "Activation Energy Eₐ (kJ/mol)",
+      name: "activationEnergy",
+      unit: "kJ/mol",
+    },
+    // gas-phase parameters:
+    { label: "Epsilon (Δn/n₀)", name: "epsilon", unit: "" },
+    { label: "P / P₀ factor", name: "pressureFactor", unit: "" },
   ];
 
   const calculateBatchTime = (vals: Record<string, number>) => {
     const R = 8.314; // J/(mol·K)
 
-    // 1. extract & convert
-    const X = vals.conversion;                 // unitless
-    const C0 = vals.initialConc * 1e3;         // mol/L → mol/m³
+    // 1. Extract & convert
+    const X_target = vals.conversion; // unitless
+    const C0_liq = vals.initialConc * 1e3; // mol/L → mol/m³
     const n = vals.order;
-    const T = vals.temperature;                // K
-    const k300 = vals.k300;                    // 1/s
-    const Ea = vals.activationEnergy * 1e3;    // kJ/mol → J/mol
+    const T = vals.temperature; // K
+    const k300 = vals.k300; // 1/s
+    const Ea = vals.activationEnergy * 1e3; // kJ/mol → J/mol
+    const ε = vals.epsilon ?? 0; // default 0
+    const φ = vals.pressureFactor ?? 1; // default 1
 
     // 2. Arrhenius correction
-    const kT = k300 * Math.exp(-Ea / R * (1 / T - 1 / 300));
+    const kT = k300 * Math.exp((-Ea / R) * (1 / T - 1 / 300));
 
-    // 3. batch time integral
-    let t_s: number;
-    if (n === 0) {
-      // t = C0*X / k
-      t_s = (C0 * X) / kT;
-    } else if (n === 1) {
-      // t = -1/k * ln(1-X)
-      t_s = (-1 / kT) * Math.log(1 - X);
-    } else {
-      // t = [ (1-X)^(1-n) - 1 ] / [ k * C0^(n-1) * (n-1) ]
-      const numerator = Math.pow(1 - X, 1 - n) - 1;
-      const denom = kT * Math.pow(C0, n - 1) * (n - 1);
-      t_s = numerator / denom;
+    // 3. Gas-phase adjusted initial concentration
+
+    // 4. Define concentration profile CA(X)
+    const CA = (X: number) => (C0_liq * φ * (1 - X)) / (1 + ε * X);
+
+    // 5. Integrand: dt = C0 / (kT * CA(X)^n) dX
+    const integrand = (X: number) => C0_liq / (kT * Math.pow(CA(X), n));
+
+    // 6. Trapezoidal integration from 0 → X_target
+    const steps = 1000;
+    const dX = X_target / steps;
+    let sum = 0.5 * (integrand(0) + integrand(X_target));
+    for (let i = 1; i < steps; i++) {
+      sum += integrand(i * dX);
     }
+    const t_s = sum * dX; // seconds
 
-    return t_s; // already in seconds
+    return t_s;
   };
 
   return (
@@ -61,13 +72,15 @@ const Batch = () => {
           <div>
             <div className="mb-6">
               <p className="text-gray-600">
-                Compute the reaction time required to achieve conversion X in a closed batch reactor with Arrhenius‐corrected kinetics.
+                Computes reaction time by numerically integrating dX/dt =
+                k(T)·CA(X)^n with gas‐phase volume change. For liquid phase set
+                ε=0, P/P₀=1.
               </p>
             </div>
 
             <ReactorCalculator
               title="Batch Reactor Time Calculation"
-              description="Uses the integral form of the batch‐reactor design equation with Arrhenius kinetics."
+              description="Numerical integration of the batch‐reactor design equation with gas‐phase expansion & Arrhenius kinetics."
               inputs={batchInputs}
               calculateResult={calculateBatchTime}
               resultLabel="Reaction Time"
