@@ -3,7 +3,6 @@ import Layout from "../components/Layout";
 import ReactorCalculator from "../components/ReactorCalculator";
 
 const CSTR = () => {
-  // New inputs for CSTR calculations
   const cstrInputs = [
     { label: "Conversion (X)", name: "conversion", unit: "" },
     { label: "Initial Conc. C₀ (mol/L)", name: "initialConc", unit: "mol/L" },
@@ -16,6 +15,17 @@ const CSTR = () => {
       name: "activationEnergy",
       unit: "kJ/mol",
     },
+    // New gas-phase parameters:
+    {
+      label: "Epsilon (Δn/n₀)",
+      name: "epsilon",
+      unit: "",
+    },
+    {
+      label: "P / P₀ factor",
+      name: "pressureFactor",
+      unit: "",
+    },
   ];
 
   const calculateCSTRVolume = (values: Record<string, number>) => {
@@ -24,25 +34,31 @@ const CSTR = () => {
     // 1. Extract & convert inputs to SI
     const X = values.conversion; // unitless
     const C0 = values.initialConc * 1e3; // mol/L → mol/m³
-    const F0 = values.flowRate / 3600 / 1e3; // L/hr → (m³/hr) → m³/s
+    const F0 = values.flowRate / 3600 / 1e3; // L/hr → m³/s
     const n = values.order;
     const T = values.temperature; // K
     const k300 = values.k300; // 1/s at 300 K
     const Ea = values.activationEnergy * 1e3; // kJ/mol → J/mol
+    const ε = values.epsilon ?? 0; // default 0 (liquid)
+    const φ = values.pressureFactor ?? 1; // default 1 (P=P₀)
 
-    // 2. Temperature correction of rate constant
+    // 2. Temperature correction of rate constant (Arrhenius)
     const kT = k300 * Math.exp((-Ea / R) * (1 / T - 1 / 300));
 
-    // 3. Outlet conc. Ce = C0*(1-X)
-    const Ce = C0 * (1 - X);
+    // 3. Adjust inlet concentration for pressure
+    //    C₀,gas = C₀,liquid × (P/P₀)
+    const C0_gas = C0 * φ;
 
-    // 4. CSTR design equation: V (m³) = F0*C0*X / [ k(T) * Ce^n ]
-    const V_m3 = (F0 * C0 * X) / (kT * Math.pow(Ce, n));
+    // 4. Outlet concentration for gas‐phase with volume change:
+    //    Cₑ = C₀,gas × (1 - X) / (1 + ε X)
+    const Ce = (C0_gas * (1 - X)) / (1 + ε * X);
 
-    // 5. Convert to liters
-    const V_L = V_m3 * 1e3;
+    // 5. CSTR design equation:
+    //    V (m³) = [F₀ × C₀,gas × X] / [k(T) × Ceⁿ]
+    const V_m3 = (F0 * C0_gas * X) / (kT * Math.pow(Ce, n));
 
-    return V_L;
+    // 6. Convert m³ → L
+    return V_m3 * 1e3;
   };
 
   return (
@@ -62,14 +78,14 @@ const CSTR = () => {
           <div>
             <div className="mb-6">
               <p className="text-gray-600">
-                Enter conversion, flow, kinetics and temperature to compute the
-                reactor volume.
+                Enter conversion, flow, kinetics, temperature—and for gas‐phase
+                only, ε (mole‐change) and P/P₀—to compute reactor volume.
               </p>
             </div>
 
             <ReactorCalculator
               title="CSTR Volume Calculation"
-              description="Computes V (L) using conversion-based CSTR design with Arrhenius kinetics."
+              description="Handles both liquid (ε=0, P/P₀=1) and gas‐phase (ε≠0 or P/P₀≠1) cases with Arrhenius kinetics."
               inputs={cstrInputs}
               calculateResult={calculateCSTRVolume}
               resultLabel="Reactor Volume"
