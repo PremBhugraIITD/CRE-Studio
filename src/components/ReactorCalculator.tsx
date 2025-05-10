@@ -1,7 +1,6 @@
-
-import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import React, { useState } from "react";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface ReactorInput {
   label: string;
@@ -24,16 +23,16 @@ const ReactorCalculator = ({
   inputs,
   calculateResult,
   resultLabel,
-  resultUnit
+  resultUnit,
 }: ReactorCalculatorProps) => {
   const [values, setValues] = useState<Record<string, number>>({});
   const [result, setResult] = useState<number | null>(null);
 
   const handleInputChange = (name: string, value: string) => {
     const numValue = parseFloat(value);
-    setValues(prev => ({
+    setValues((prev) => ({
       ...prev,
-      [name]: isNaN(numValue) ? 0 : numValue
+      [name]: isNaN(numValue) ? 0 : numValue,
     }));
   };
 
@@ -42,7 +41,7 @@ const ReactorCalculator = ({
       const calculatedResult = calculateResult(values);
       setResult(calculatedResult);
     } catch (error) {
-      console.error('Calculation error:', error);
+      console.error("Calculation error:", error);
       setResult(null);
     }
   };
@@ -55,7 +54,9 @@ const ReactorCalculator = ({
   return (
     <Card className="calculator-section">
       <CardHeader>
-        <CardTitle className="text-2xl text-center text-cre-navy">{title}</CardTitle>
+        <CardTitle className="text-2xl text-center text-cre-navy">
+          {title}
+        </CardTitle>
         <p className="text-center text-gray-600">{description}</p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -68,7 +69,7 @@ const ReactorCalculator = ({
               <input
                 id={input.name}
                 type="number"
-                value={values[input.name] || ''}
+                value={values[input.name] || ""}
                 onChange={(e) => handleInputChange(input.name, e.target.value)}
                 className="calculator-input"
                 placeholder={`Enter ${input.label.toLowerCase()}`}
@@ -78,7 +79,10 @@ const ReactorCalculator = ({
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-          <Button onClick={handleCalculate} className="bg-cre-navy hover:bg-cre-navy/90">
+          <Button
+            onClick={handleCalculate}
+            className="bg-cre-navy hover:bg-cre-navy/90"
+          >
             Calculate
           </Button>
           <Button variant="outline" onClick={handleReset}>

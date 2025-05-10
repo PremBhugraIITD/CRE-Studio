@@ -13,26 +13,29 @@ import LoadingScreen from "./components/LoadingScreen";
 import { useState } from "react";
 
 const queryClient = new QueryClient();
-const [isLoaded, setIsLoaded] = useState(false);
 const App = () => {
-  return;
-  <QueryClientProvider client={queryClient}>
-    {!isLoaded && <LoadingScreen onComplete={() => setIsLoaded(true)} />}
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/batch" element={<Batch />} />
-          <Route path="/cstr" element={<CSTR />} />
-          <Route path="/pfr" element={<PFR />} />
-          <Route path="/pbr" element={<PBR />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>;
+  const [isLoaded, setIsLoaded] = useState(false);
+  return (
+    <QueryClientProvider client={queryClient}>
+      {!isLoaded && <LoadingScreen onComplete={() => setIsLoaded(true)} />}
+      {isLoaded && (
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/batch" element={<Batch />} />
+              <Route path="/cstr" element={<CSTR />} />
+              <Route path="/pfr" element={<PFR />} />
+              <Route path="/pbr" element={<PBR />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      )}
+    </QueryClientProvider>
+  );
 };
 
 export default App;

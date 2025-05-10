@@ -6,7 +6,7 @@ interface LoadingScreenProps {
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
   const [text, setText] = useState<string>("");
-  const fullText = "<Welcome to My World />";
+  const fullText = "<CRE Calculator />";
 
   useEffect(() => {
     let index = 0;
@@ -19,7 +19,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
 
         setTimeout(() => {
           onComplete();
-        }, 1000);
+        }, 1500);
       }
     }, 100);
 

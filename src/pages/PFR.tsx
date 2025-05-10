@@ -1,69 +1,72 @@
-
-import React from 'react';
-import Layout from '../components/Layout';
-import ReactorCalculator from '../components/ReactorCalculator';
+import React from "react";
+import Layout from "../components/Layout";
+import ReactorCalculator from "../components/ReactorCalculator";
 
 const PFR = () => {
-  // Define inputs for PFR calculations
   const pfrInputs = [
-    { label: "Inlet Concentration", name: "inletConc", unit: "mol/L" },
-    { label: "Outlet Concentration", name: "outletConc", unit: "mol/L" },
-    { label: "Flow Rate", name: "flowRate", unit: "L/min" },
-    { label: "Rate Constant", name: "rateConstant", unit: "1/min" },
-    { label: "Reaction Order", name: "reactionOrder", unit: "" },
+    { label: "Conversion (X)", name: "conversion", unit: "" },
+    { label: "Initial Conc. C₀ (mol/L)", name: "initialConc", unit: "mol/L" },
+    { label: "Volumetric Flow F₀ (L/hr)", name: "flowRate", unit: "L/hr" },
+    { label: "Reaction Order (n)", name: "order", unit: "" },
+    { label: "Temperature T (K)", name: "temperature", unit: "K" },
+    { label: "k @ 300 K (1/s)", name: "k300", unit: "1/s" },
+    { label: "Activation Energy Eₐ (kJ/mol)", name: "activationEnergy", unit: "kJ/mol" },
   ];
 
-  // Calculate PFR volume
-  const calculatePFRVolume = (values: Record<string, number>) => {
-    const { inletConc, outletConc, flowRate, rateConstant, reactionOrder } = values;
-    
-    let volume = 0;
-    
-    // First-order reaction
-    if (reactionOrder === 1) {
-      volume = (flowRate / rateConstant) * Math.log(inletConc / outletConc);
+  const calculatePFRVolume = (vals: Record<string, number>) => {
+    const R = 8.314; // J/(mol·K)
+
+    // 1. extract & convert
+    const X = vals.conversion;                 // unitless
+    const C0 = vals.initialConc * 1e3;         // mol/L → mol/m³
+    const F0 = vals.flowRate / 3600 / 1e3;     // L/hr → m³/s
+    const n = vals.order;
+    const T = vals.temperature;                // K
+    const k300 = vals.k300;                    // 1/s
+    const Ea = vals.activationEnergy * 1e3;    // kJ/mol → J/mol
+
+    // 2. Arrhenius correction
+    const kT = k300 * Math.exp(-Ea / R * (1 / T - 1 / 300));
+
+    // 3. evaluate the integral
+    let V_m3: number;
+    if (n === 1) {
+      // ∫0^X (1-X)^(-1) dX = -ln(1-X)
+      V_m3 = (F0 / (kT * Math.pow(C0, n - 1))) * (-Math.log(1 - X));
+    } else {
+      // ∫0^X (1-X)^(-n) dX = [ (1-X)^(1-n) - 1 ]/(1-n)
+      const factor = ((1 - X) ** (1 - n) - 1) / (1 - n);
+      V_m3 = (F0 / (kT * Math.pow(C0, n - 1))) * factor;
     }
-    // Zero-order reaction
-    else if (reactionOrder === 0) {
-      volume = (flowRate * (inletConc - outletConc)) / rateConstant;
-    }
-    // Second-order reaction
-    else if (reactionOrder === 2) {
-      volume = (flowRate / rateConstant) * ((1 / outletConc) - (1 / inletConc));
-    }
-    // General formula for other reaction orders
-    else {
-      volume = (flowRate / rateConstant) * (1 / (reactionOrder - 1)) * 
-               ((1 / Math.pow(outletConc, reactionOrder - 1)) - (1 / Math.pow(inletConc, reactionOrder - 1)));
-    }
-    
-    return volume;
+
+    // 4. convert to liters
+    return V_m3 * 1e3;
   };
 
   return (
     <Layout isReactorPage>
       <div className="animate-fade-in">
-        <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">PFR Calculator</h1>
-        
+        <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">
+          PFR Calculator
+        </h1>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left column - Reactor image placeholder */}
+          {/* Left: image placeholder */}
           <div className="bg-[#ea384c] rounded-lg h-[300px] md:h-auto flex items-center justify-center text-white font-bold">
             PFR Reactor Image Placeholder
           </div>
-          
-          {/* Right column - Reactor calculator */}
+
+          {/* Right: calculator */}
           <div>
             <div className="mb-6">
               <p className="text-gray-600">
-                A Plug Flow Reactor (PFR) is a tubular reactor where flow is assumed to move as a "plug" through 
-                the reactor with no mixing in the axial direction. This calculator helps determine the required 
-                reactor volume based on the kinetic parameters and desired conversion.
+                Compute the tubular reactor volume based on conversion, kinetics and flow.
               </p>
             </div>
 
             <ReactorCalculator
               title="PFR Volume Calculation"
-              description="Calculate the required reactor volume based on flow rate, concentrations, and reaction kinetics."
+              description="Uses conversion-integral form of the PFR design equation with Arrhenius kinetics."
               inputs={pfrInputs}
               calculateResult={calculatePFRVolume}
               resultLabel="Reactor Volume"
