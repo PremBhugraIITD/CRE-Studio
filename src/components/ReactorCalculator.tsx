@@ -69,7 +69,7 @@ const ReactorCalculator = ({
               <input
                 id={input.name}
                 type="number"
-                value={values[input.name] || ""}
+                value={values[input.name] ?? ""}
                 onChange={(e) => handleInputChange(input.name, e.target.value)}
                 className="calculator-input"
                 placeholder={`Enter ${input.label.toLowerCase()}`}

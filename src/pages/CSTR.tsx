@@ -11,23 +11,27 @@ const CSTR = () => {
     { label: "Reaction Order (n)", name: "order", unit: "" },
     { label: "Temperature T (K)", name: "temperature", unit: "K" },
     { label: "k @ 300 K (1/s)", name: "k300", unit: "1/s" },
-    { label: "Activation Energy Eₐ (kJ/mol)", name: "activationEnergy", unit: "kJ/mol" },
+    {
+      label: "Activation Energy Eₐ (kJ/mol)",
+      name: "activationEnergy",
+      unit: "kJ/mol",
+    },
   ];
 
   const calculateCSTRVolume = (values: Record<string, number>) => {
     const R = 8.314; // J/(mol·K)
 
     // 1. Extract & convert inputs to SI
-    const X = values.conversion;                 // unitless
-    const C0 = values.initialConc * 1e3;         // mol/L → mol/m³
-    const F0 = values.flowRate / 3600 / 1e3;     // L/hr → (m³/hr) → m³/s
+    const X = values.conversion; // unitless
+    const C0 = values.initialConc * 1e3; // mol/L → mol/m³
+    const F0 = values.flowRate / 3600 / 1e3; // L/hr → (m³/hr) → m³/s
     const n = values.order;
-    const T = values.temperature;                // K
-    const k300 = values.k300;                    // 1/s at 300 K
-    const Ea = values.activationEnergy * 1e3;    // kJ/mol → J/mol
+    const T = values.temperature; // K
+    const k300 = values.k300; // 1/s at 300 K
+    const Ea = values.activationEnergy * 1e3; // kJ/mol → J/mol
 
     // 2. Temperature correction of rate constant
-    const kT = k300 * Math.exp(-Ea / R * (1 / T - 1 / 300));
+    const kT = k300 * Math.exp((-Ea / R) * (1 / T - 1 / 300));
 
     // 3. Outlet conc. Ce = C0*(1-X)
     const Ce = C0 * (1 - X);
@@ -58,7 +62,8 @@ const CSTR = () => {
           <div>
             <div className="mb-6">
               <p className="text-gray-600">
-                Enter conversion, flow, kinetics and temperature to compute the reactor volume.
+                Enter conversion, flow, kinetics and temperature to compute the
+                reactor volume.
               </p>
             </div>
 
