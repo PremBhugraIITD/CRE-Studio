@@ -15,14 +15,9 @@ import { useState } from "react";
 const queryClient = new QueryClient();
 const [isLoaded, setIsLoaded] = useState(false);
 const App = () => {
-  {
-    !isLoaded && <LoadingScreen onComplete={() => setIsLoaded(true)} />;
-  }
-  {
-    (" ");
-  }
   return;
   <QueryClientProvider client={queryClient}>
+    {!isLoaded && <LoadingScreen onComplete={() => setIsLoaded(true)} />}
     <TooltipProvider>
       <Toaster />
       <Sonner />

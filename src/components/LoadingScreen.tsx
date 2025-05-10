@@ -4,7 +4,7 @@ interface LoadingScreenProps {
   onComplete: () => void;
 }
 
-export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
   const [text, setText] = useState<string>("");
   const fullText = "<Welcome to My World />";
 
@@ -38,3 +38,5 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
     </div>
   );
 };
+
+export default LoadingScreen;
