@@ -52,26 +52,36 @@ const PBR = () => {
   };
 
   return (
-    <Layout>
+    <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">PBR Calculator</h1>
         
-        <div className="mb-6">
-          <p className="text-gray-600">
-            A Packed Bed Reactor (PBR) contains solid catalyst particles with fluid flowing through the bed. 
-            This calculator helps determine the required reactor volume based on catalyst properties, 
-            flow parameters, and desired conversion.
-          </p>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left column - Reactor image placeholder */}
+          <div className="bg-[#ea384c] rounded-lg h-[300px] md:h-auto flex items-center justify-center text-white font-bold">
+            PBR Reactor Image Placeholder
+          </div>
+          
+          {/* Right column - Reactor calculator */}
+          <div>
+            <div className="mb-6">
+              <p className="text-gray-600">
+                A Packed Bed Reactor (PBR) contains solid catalyst particles with fluid flowing through the bed. 
+                This calculator helps determine the required reactor volume based on catalyst properties, 
+                flow parameters, and desired conversion.
+              </p>
+            </div>
 
-        <ReactorCalculator
-          title="PBR Volume Calculation"
-          description="Calculate the required reactor volume based on catalyst properties, flow rate, and reaction kinetics."
-          inputs={pbrInputs}
-          calculateResult={calculatePBRCatalyst}
-          resultLabel="Reactor Volume"
-          resultUnit="liters"
-        />
+            <ReactorCalculator
+              title="PBR Volume Calculation"
+              description="Calculate the required reactor volume based on catalyst properties, flow rate, and reaction kinetics."
+              inputs={pbrInputs}
+              calculateResult={calculatePBRCatalyst}
+              resultLabel="Reactor Volume"
+              resultUnit="liters"
+            />
+          </div>
+        </div>
       </div>
     </Layout>
   );

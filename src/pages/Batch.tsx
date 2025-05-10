@@ -39,26 +39,36 @@ const Batch = () => {
   };
 
   return (
-    <Layout>
+    <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">Batch Reactor Calculator</h1>
         
-        <div className="mb-6">
-          <p className="text-gray-600">
-            A batch reactor is a closed system where all reactants are loaded at once, and the reaction 
-            proceeds with time. This calculator helps determine the time required for a reaction based on 
-            the kinetic parameters and conversion.
-          </p>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left column - Reactor image placeholder */}
+          <div className="bg-[#ea384c] rounded-lg h-[300px] md:h-auto flex items-center justify-center text-white font-bold">
+            Batch Reactor Image Placeholder
+          </div>
+          
+          {/* Right column - Reactor calculator */}
+          <div>
+            <div className="mb-6">
+              <p className="text-gray-600">
+                A batch reactor is a closed system where all reactants are loaded at once, and the reaction 
+                proceeds with time. This calculator helps determine the time required for a reaction based on 
+                the kinetic parameters and conversion.
+              </p>
+            </div>
 
-        <ReactorCalculator
-          title="Batch Reactor Time Calculation"
-          description="Calculate the time required to achieve desired conversion in a batch reactor."
-          inputs={batchInputs}
-          calculateResult={calculateBatchVolume}
-          resultLabel="Reaction Time"
-          resultUnit="minutes"
-        />
+            <ReactorCalculator
+              title="Batch Reactor Time Calculation"
+              description="Calculate the time required to achieve desired conversion in a batch reactor."
+              inputs={batchInputs}
+              calculateResult={calculateBatchVolume}
+              resultLabel="Reaction Time"
+              resultUnit="minutes"
+            />
+          </div>
+        </div>
       </div>
     </Layout>
   );

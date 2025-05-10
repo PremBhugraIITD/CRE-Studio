@@ -35,26 +35,36 @@ const CSTR = () => {
   };
 
   return (
-    <Layout>
+    <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">CSTR Calculator</h1>
         
-        <div className="mb-6">
-          <p className="text-gray-600">
-            A Continuous Stirred Tank Reactor (CSTR) is a common reactor type where reactants are continuously 
-            fed while products are continuously removed. The reactor contents are well-mixed, resulting in uniform 
-            conditions throughout the reactor.
-          </p>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left column - Reactor image placeholder */}
+          <div className="bg-[#ea384c] rounded-lg h-[300px] md:h-auto flex items-center justify-center text-white font-bold">
+            CSTR Reactor Image Placeholder
+          </div>
+          
+          {/* Right column - Reactor calculator */}
+          <div>
+            <div className="mb-6">
+              <p className="text-gray-600">
+                A Continuous Stirred Tank Reactor (CSTR) is a common reactor type where reactants are continuously 
+                fed while products are continuously removed. The reactor contents are well-mixed, resulting in uniform 
+                conditions throughout the reactor.
+              </p>
+            </div>
 
-        <ReactorCalculator
-          title="CSTR Volume Calculation"
-          description="Calculate the required reactor volume based on flow rate, concentrations, and reaction kinetics."
-          inputs={cstrInputs}
-          calculateResult={calculateCSTRVolume}
-          resultLabel="Reactor Volume"
-          resultUnit="liters"
-        />
+            <ReactorCalculator
+              title="CSTR Volume Calculation"
+              description="Calculate the required reactor volume based on flow rate, concentrations, and reaction kinetics."
+              inputs={cstrInputs}
+              calculateResult={calculateCSTRVolume}
+              resultLabel="Reactor Volume"
+              resultUnit="liters"
+            />
+          </div>
+        </div>
       </div>
     </Layout>
   );
