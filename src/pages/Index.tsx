@@ -1,6 +1,11 @@
 import React from "react";
 import Layout from "../components/Layout";
 import ReactorTile from "../components/ReactorTile";
+import { CSTRIcon } from "../components/icons/CSTRIcon";
+import { BatchIcon } from "../components/icons/BatchIcon";
+import { PFRIcon } from "../components/icons/PFRIcon";
+import { PBRIcon } from "../components/icons/PBRIcon";
+import PBR from "./PBR";
 
 const Index = () => {
   const reactors = [
@@ -9,28 +14,28 @@ const Index = () => {
       description:
         "A closed system where all reactants are loaded at once and no mass enters or leaves during reaction.",
       path: "/batch",
-      iconType: "batch" as const,
+      iconType: BatchIcon,
     },
     {
       title: "CSTR",
       description:
         "Continuous Stirred Tank Reactor with perfect mixing and continuous flow.",
       path: "/cstr",
-      iconType: "cstr" as const,
+      iconType: CSTRIcon,
     },
     {
       title: "PFR",
       description:
         "Plug Flow Reactor with flow in a tubular vessel and no axial mixing.",
       path: "/pfr",
-      iconType: "pfr" as const,
+      iconType: PFRIcon,
     },
     {
       title: "PBR",
       description:
         "Packed Bed Reactor containing solid catalyst particles with fluid flow.",
       path: "/pbr",
-      iconType: "pbr" as const,
+      iconType: PBRIcon,
     },
   ];
 
@@ -38,7 +43,7 @@ const Index = () => {
     <Layout>
       <div className="animate-fade-in">
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-cre-navy">
-          Chemical Reaction Engineering Calculator
+          CRE Studio (An Isothermal Reactor Design Tool)
         </h1>
         <p className="text-center text-gray-600 mb-10">
           Select a reactor type below to begin your calculations
@@ -51,7 +56,7 @@ const Index = () => {
               title={reactor.title}
               description={reactor.description}
               path={reactor.path}
-              iconType={reactor.iconType}
+              Icon={reactor.iconType} // Pass the icon component
             />
           ))}
         </div>

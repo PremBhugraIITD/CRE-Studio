@@ -6,7 +6,7 @@ interface LoadingScreenProps {
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
   const [text, setText] = useState<string>("");
-  const fullText = "<CRE Calculator />";
+  const fullText = "<CRE Studio/>";
 
   useEffect(() => {
     let index = 0;

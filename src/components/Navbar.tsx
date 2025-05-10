@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { BeakerIcon } from "./icons/BeakerIcon";
+import { BatchIcon } from "./icons/BatchIcon";
 
 const Navbar = () => {
   const location = useLocation();
@@ -12,7 +12,7 @@ const Navbar = () => {
     <nav className="bg-cre-navy shadow-sm border-b">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <BeakerIcon className="h-8 w-8 text-white" />
+          <BatchIcon className="h-8 w-8 text-white" />
           <span className="text-xl font-bold text-white">CRE Calculator</span>
         </Link>
 
