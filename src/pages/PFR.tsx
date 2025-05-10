@@ -15,6 +15,8 @@ const PFR = () => {
       name: "activationEnergy",
       unit: "kJ/mol",
     },
+    { label: "Epsilon (Δn/n₀)", name: "epsilon", unit: "" },
+    { label: "P / P₀ factor", name: "pressureFactor", unit: "" },
   ];
 
   const calculatePFRVolume = (vals: Record<string, number>) => {
@@ -22,28 +24,37 @@ const PFR = () => {
 
     // 1. extract & convert
     const X = vals.conversion; // unitless
-    const C0 = vals.initialConc * 1e3; // mol/L → mol/m³
+    const C0_liq = vals.initialConc * 1e3; // mol/L → mol/m³
     const F0 = vals.flowRate / 3600 / 1e3; // L/hr → m³/s
     const n = vals.order;
     const T = vals.temperature; // K
     const k300 = vals.k300; // 1/s
     const Ea = vals.activationEnergy * 1e3; // kJ/mol → J/mol
+    const ε = vals.epsilon ?? 0; // default 0
+    const φ = vals.pressureFactor ?? 1; // default 1
 
     // 2. Arrhenius correction
     const kT = k300 * Math.exp((-Ea / R) * (1 / T - 1 / 300));
 
-    // 3. evaluate the integral
-    let V_m3: number;
-    if (n === 1) {
-      // ∫0^X (1-X)^(-1) dX = -ln(1-X)
-      V_m3 = (F0 / (kT * Math.pow(C0, n - 1))) * -Math.log(1 - X);
-    } else {
-      // ∫0^X (1-X)^(-n) dX = [ (1-X)^(1-n) - 1 ]/(1-n)
-      const factor = ((1 - X) ** (1 - n) - 1) / (1 - n);
-      V_m3 = -(F0 / (kT * Math.pow(C0, n - 1))) * factor;
-    }
+    // 3. gas-phase adjusted C0 and molar flow
+    const FA0 = F0 * C0_liq; // molar flow A0 = volumetric * C0
 
-    // 4. convert to liters
+    // 4. integrand f(Xi) = FA0 / [ kT * ( C_A(Xi) )^n ]
+    const integrand = (Xi: number) => {
+      const CA = (C0_liq * φ * (1 - Xi)) / (1 + ε * Xi);
+      return FA0 / (kT * Math.pow(CA, n));
+    };
+
+    // 5. trapezoidal integration from 0 to X
+    const steps = 1000;
+    const dX = X / steps;
+    let sum = 0.5 * (integrand(0) + integrand(X));
+    for (let i = 1; i < steps; i++) {
+      sum += integrand(i * dX);
+    }
+    const V_m3 = sum * dX; // m³
+
+    // 6. convert to liters
     return V_m3 * 1e3;
   };
 
@@ -64,14 +75,14 @@ const PFR = () => {
           <div>
             <div className="mb-6">
               <p className="text-gray-600">
-                Compute the tubular reactor volume based on conversion, kinetics
-                and flow.
+                Compute gas-phase or liquid PFR volume by integrating 0→X with
+                Arrhenius kinetics. For liquid phase: set ε=0, P/P₀=1.
               </p>
             </div>
 
             <ReactorCalculator
               title="PFR Volume Calculation"
-              description="Uses conversion-integral form of the PFR design equation with Arrhenius kinetics."
+              description="Numerical integration of PFR mole balance with gas-phase volume change & Arrhenius kinetics."
               inputs={pfrInputs}
               calculateResult={calculatePFRVolume}
               resultLabel="Reactor Volume"
