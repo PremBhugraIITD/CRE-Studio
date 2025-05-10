@@ -4,10 +4,10 @@ import { ExternalLink } from "lucide-react";
 
 const Footer = () => {
   const teamMembers = [
-    { name: "Team Member 1", email: "member1@example.com" },
-    { name: "Team Member 2", email: "member2@example.com" },
-    { name: "Team Member 3", email: "member3@example.com" },
-    { name: "Team Member 4", email: "member4@example.com" },
+    { name: "Prem Bhugra", email: "ch7221038@iitd.ac.com" },
+    { name: "Shaurya Kumar Maurya", email: "ch7221495@iitd.ac.com" },
+    { name: "Rahul Arvind Masand", email: "ch7221476@iitd.ac.com" },
+    { name: "Shubham Chawla", email: "ch7221507@iitd.ac.com" },
   ];
 
   return (
@@ -25,8 +25,8 @@ const Footer = () => {
               ))}
             </div>
             <div className="mt-4">
-              <p className="font-medium">Professor</p>
-              <p className="text-sm text-gray-300">Dr. Jane Smith</p>
+              <p className="font-medium">Instructor's Name</p>
+              <p className="text-sm text-gray-300">Professor Manjesh Kumar</p>
             </div>
           </div>
 
@@ -52,12 +52,27 @@ const Footer = () => {
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Google
                 </a>
+                <a
+                  href="mailto:ch7221038@iitd.ac.in"
+                  className="flex items-center hover:text-cre-teal transition-colors"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Email Us
+                </a>
               </div>
             </div>
 
+            <a
+              href="https://home.iitd.ac.in/"
+              target="_blank"
+              className="absolute h-[20%] w-[12%] ml-[23%] mt-4"
+            >
+              <img src="/iitd-logo.png" alt="IIT Delhi Logo" className="w-auto h-auto"/>
+            </a>
+
             <p className="text-sm mt-6 text-gray-300">
-              © {new Date().getFullYear()} Chemical Reaction Engineering
-              Calculator
+              © {new Date().getFullYear()} Copyright IIT Delhi. All rights
+              reserved.
             </p>
           </div>
         </div>
