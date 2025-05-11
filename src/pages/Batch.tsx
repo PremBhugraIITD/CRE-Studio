@@ -9,41 +9,63 @@ const Batch = () => {
     { label: "Reaction Order", name: "order", unit: "n" },
     { label: "Temperature", name: "temperature", unit: "K" },
     { label: "Rate Constant", name: "k300", unit: "At 300K" },
-    {
-      label: "Activation Energy",
-      name: "activationEnergy",
-      unit: "kJ/mol",
-    },
-    // gas-phase parameters:
+    { label: "Activation Energy", name: "activationEnergy", unit: "kJ/mol" },
     { label: "Epsilon", name: "epsilon", unit: "ε" },
-    { label: "Pressure Factor", name: "pressureFactor", unit: "P/Po" },
   ];
 
-  const calculateBatchTime = (vals: Record<string, number>) => {
+  const calculateBatchTime = (
+    vals: Record<string, number>
+  ): [number, number] => {
     const R = 8.314; // J/(mol·K)
 
+    // --- INPUT VALIDATION ---
+    const X_target = vals.conversion;
+    const C0_liq = vals.initialConc;
+    const T = vals.temperature;
+    const k300 = vals.k300;
+
+    if (X_target == null || X_target < 0 || X_target > 1) {
+      alert("Please enter a conversion between 0 and 1.");
+      throw new Error("Invalid conversion");
+    }
+    if (C0_liq == null || C0_liq <= 0) {
+      alert("Initial concentration must be positive.");
+      throw new Error("Invalid initial concentration");
+    }
+    if (T == null || T <= 0 || T > 2000) {
+      alert("Temperature must be >0 K and ≤2000 K.");
+      throw new Error("Invalid temperature");
+    }
+    if (k300 == null || k300 <= 0) {
+      alert("Rate constant at 300 K must be positive.");
+      throw new Error("Invalid rate constant");
+    }
+    if (vals.order == null || vals.order < 0) {
+      alert("Reaction order must be positive.");
+      throw new Error("Invalid reaction order");
+    }
+
     // 1. Extract & convert
-    const X_target = vals.conversion; // unitless
-    const C0_liq = vals.initialConc * 1e3; // mol/L → mol/m³
+    const C0_m3 = C0_liq * 1e3; // mol/L → mol/m³
     const n = vals.order;
-    const T = vals.temperature; // K
-    const k300 = vals.k300; // 1/s
     const Ea = vals.activationEnergy * 1e3; // kJ/mol → J/mol
-    const ε = vals.epsilon ?? 0; // default 0
-    const φ = vals.pressureFactor ?? 1; // default 1
+    const ε = vals.epsilon ?? 0;
+
+    if (Ea == null || Ea < 0) {
+      alert("Activation energy must be non-negative.");
+      throw new Error("Invalid activation energy");
+    }
 
     // 2. Arrhenius correction
     const kT = k300 * Math.exp((-Ea / R) * (1 / T - 1 / 300));
 
-    // 3. Gas-phase adjusted initial concentration
+    // 3. Concentration profile CA(X)
+    const CA = (X: number) => (C0_m3 * (1 - X)) / (1 + ε * X);
 
-    // 4. Define concentration profile CA(X)
-    const CA = (X: number) => (C0_liq * φ * (1 - X)) / (1 + ε * X);
+    // 4. Integrand: dt = C0_m3 / [kT * CA(X)^n] dX
+    const integrand = (X: number) => C0_m3 / (kT * Math.pow(CA(X), n));
 
-    // 5. Integrand: dt = C0 / (kT * CA(X)^n) dX
-    const integrand = (X: number) => C0_liq / (kT * Math.pow(CA(X), n));
-
-    // 6. Trapezoidal integration from 0 → X_target
+    // 5. Trapezoidal integration from 0 → X_target
     const steps = 1000;
     const dX = X_target / steps;
     let sum = 0.5 * (integrand(0) + integrand(X_target));
@@ -52,7 +74,21 @@ const Batch = () => {
     }
     const t_s = sum * dX; // seconds
 
-    return t_s;
+    // 6. Final concentration for reporting (mol/m³ → mol/L)
+    const C_out_m3 = (C0_m3 * (1 - X_target)) / (1 + ε * X_target);
+    const C_out_L = C_out_m3 / 1e3;
+
+    // --- OUTPUT VALIDATION ---
+    if (!(t_s > 0) || isNaN(t_s) || !isFinite(t_s)) {
+      alert("Calculated reaction time is non‐positive; check your inputs.");
+      throw new Error("Invalid reaction time");
+    }
+    if (!(C_out_L >= 0) || isNaN(C_out_L) || !isFinite(C_out_L)) {
+      alert("Calculated outlet concentration is invalid; check your inputs.");
+      throw new Error("Invalid outlet concentration");
+    }
+
+    return [t_s, C_out_L];
   };
 
   return (
@@ -63,26 +99,29 @@ const Batch = () => {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left: image placeholder */}
+          {/* Left: image */}
           <div className="bg-[#ea384c] rounded-lg h-[300px] md:h-auto flex items-center justify-center text-white font-bold">
-            <img src="/batch.webp" className="w-[100%] h-[100%]" />
+            <img
+              src="/batch.webp"
+              alt="Batch Reactor"
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Right: calculator */}
           <div>
-            <div className="mb-6">
-              <p className="text-gray-600">
-                aA + bB → cC + dD
-              </p>
-            </div>
-
+            <p className="text-gray-600 mb-4">
+              Provides reaction time (s) and outlet concentration (mol/L).
+            </p>
             <ReactorCalculator
-              title="Batch Reactor Time Calculation"
-              description="For gas phase reactions, enter ε (mole change) and P/P₀. For liquid phase, set ε=0 and P/P₀=1 or leave the fields empty."
+              title="Batch Reactor Time & Outlet Conc."
+              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ).
+              For gas-phase: enter ε (mole change) and P/P₀. For liquid-phase,
+              set ε=0 and P/P₀=1."
               inputs={batchInputs}
               calculateResult={calculateBatchTime}
-              resultLabel="Reaction Time"
-              resultUnit="seconds"
+              resultLabels={["Reaction Time", "Outlet Concentration"]}
+              resultUnits={["s", "mol/L"]}
             />
           </div>
         </div>

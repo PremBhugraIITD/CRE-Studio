@@ -9,81 +9,123 @@ const PFR = () => {
     { label: "Volumetric Flow Rate", name: "flowRate", unit: "L/hr" },
     { label: "Reaction Order", name: "order", unit: "n" },
     { label: "Temperature", name: "temperature", unit: "K" },
-    { label: "Rate Constant", name: "k300", unit: "At 300K" },
-    {
-      label: "Activation Energy",
-      name: "activationEnergy",
-      unit: "kJ/mol",
-    },
+    { label: "Rate Constant", name: "k300", unit: "At 300 K" },
+    { label: "Activation Energy", name: "activationEnergy", unit: "kJ/mol" },
     { label: "Epsilon", name: "epsilon", unit: "ε" },
-    { label: "Pressure Factor", name: "pressureFactor", unit: "P/Po" },
   ];
 
-  const calculatePFRVolume = (vals: Record<string, number>) => {
+  const calculatePFRVolume = (
+    vals: Record<string, number>
+  ): [number, number] => {
     const R = 8.314; // J/(mol·K)
 
-    // 1. extract & convert
-    const X = vals.conversion; // unitless
-    const C0_liq = vals.initialConc * 1e3; // mol/L → mol/m³
-    const F0 = vals.flowRate / 3600 / 1e3; // L/hr → m³/s
+    // --- INPUT VALIDATION ---
+    const X = vals.conversion;
+    const C0 = vals.initialConc;
+    const F0_L = vals.flowRate;
     const n = vals.order;
-    const T = vals.temperature; // K
-    const k300 = vals.k300; // 1/s
-    const Ea = vals.activationEnergy * 1e3; // kJ/mol → J/mol
-    const ε = vals.epsilon ?? 0; // default 0
-    const φ = vals.pressureFactor ?? 1; // default 1
+    const T = vals.temperature;
+    const k300 = vals.k300;
+    const Ea = vals.activationEnergy;
 
-    // 2. Arrhenius correction
-    const kT = k300 * Math.exp((-Ea / R) * (1 / T - 1 / 300));
+    if (X == null || X < 0 || X > 1) {
+      alert("Conversion must be between 0 and 1.");
+      throw new Error("Invalid conversion");
+    }
+    if (C0 == null || C0 <= 0) {
+      alert("Inlet concentration must be positive.");
+      throw new Error("Invalid concentration");
+    }
+    if (F0_L == null || F0_L <= 0) {
+      alert("Flow rate must be positive.");
+      throw new Error("Invalid flow rate");
+    }
+    if (n == null || n < 0) {
+      alert("Reaction order must be a positive number.");
+      throw new Error("Invalid reaction order");
+    }
+    if (T == null || T <= 0 || T > 2000) {
+      alert("Temperature must be >0 K and ≤2000 K.");
+      throw new Error("Invalid temperature");
+    }
+    if (k300 == null || k300 <= 0) {
+      alert("Rate constant at 300 K must be positive.");
+      throw new Error("Invalid rate constant");
+    }
+    if (Ea == null || Ea < 0) {
+      alert("Activation energy must be non-negative.");
+      throw new Error("Invalid activation energy");
+    }
+    // ε and φ can be any real, but φ must be >0
+    const ε = vals.epsilon ?? 0;
 
-    // 3. gas-phase adjusted C0 and molar flow
-    const FA0 = F0 * C0_liq; // molar flow A0 = volumetric * C0
+    // 1. extract & convert
+    const C0_m3 = C0 * 1e3; // mol/L → mol/m³
+    const F0 = F0_L / 1000 / 3600; // L/hr → m³/s
+    const kT = k300 * Math.exp(((-Ea * 1e3) / R) * (1 / T - 1 / 300));
 
-    // 4. integrand f(Xi) = FA0 / [ kT * ( C_A(Xi) )^n ]
+    // 2. Molar flow
+    const FA0 = F0 * C0_m3; // mol/s
+
+    // 3. Integrand f(Xi)
     const integrand = (Xi: number) => {
-      const CA = (C0_liq * φ * (1 - Xi)) / (1 + ε * Xi);
-      return FA0 / (kT * Math.pow(CA, n));
+      const CA_m3 = (C0_m3 * (1 - Xi)) / (1 + ε * Xi);
+      return FA0 / (kT * Math.pow(CA_m3, n));
     };
 
-    // 5. trapezoidal integration from 0 to X
+    // 4. Trapezoidal integration to get V_m3
     const steps = 1000;
     const dX = X / steps;
     let sum = 0.5 * (integrand(0) + integrand(X));
-    for (let i = 1; i < steps; i++) {
-      sum += integrand(i * dX);
-    }
+    for (let i = 1; i < steps; i++) sum += integrand(i * dX);
     const V_m3 = sum * dX; // m³
+    const V_L = V_m3 * 1e3; // → L
 
-    // 6. convert to liters
-    return V_m3 * 1e3;
+    // 5. Outlet concentration
+    const Ce_m3 = (C0_m3 * (1 - X)) / (1 + ε * X);
+    const Ce_L = Ce_m3 / 1e3; // → mol/L
+
+    // --- OUTPUT VALIDATION ---
+    if (!(V_L > 0) || !isFinite(V_L) || isNaN(V_L)) {
+      alert("Calculated reactor volume is invalid; check inputs.");
+      throw new Error("Invalid reactor volume");
+    }
+    if (!(Ce_L >= 0) || !isFinite(Ce_L) || isNaN(Ce_L)) {
+      alert("Calculated outlet concentration is invalid; check inputs.");
+      throw new Error("Invalid outlet concentration");
+    }
+
+    return [V_L, Ce_L];
   };
 
   return (
     <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">
-          PFR Volume Calculator
+          PFR Volume & Outlet Conc.
         </h1>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left: image placeholder */}
+          {/* Left */}
           <div className="bg-[#ea384c] rounded-lg h-[300px] md:h-auto flex items-center justify-center text-white font-bold">
-            <img src="/pfr.jpg" className="w-[100%] h-[100%]" />
+            <img
+              src="/pfr.jpg"
+              alt="PFR Reactor"
+              className="w-full h-full object-cover"
+            />
           </div>
-
-          {/* Right: calculator */}
+          {/* Right */}
           <div>
-            <div className="mb-6">
-              <p className="text-gray-600">aA + bB → cC + dD</p>
-            </div>
-
+            <p className="text-gray-600 mb-4">
+              Calculates reactor volume (L) and outlet concentration (mol/L).
+            </p>
             <ReactorCalculator
-              title="PFR Volume Calculation"
-              description="For gas phase reactions, enter ε (mole change) and P/P₀. For liquid phase, set ε=0 and P/P₀=1 or leave the fields empty."
+              title="PFR Calculator"
+              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change) and P/P₀. For liquid-phase,
+              set ε=0 & P/P₀=1."
               inputs={pfrInputs}
               calculateResult={calculatePFRVolume}
-              resultLabel="Reactor Volume"
-              resultUnit="liters"
+              resultLabels={["Reactor Volume", "Outlet Conc."]}
+              resultUnits={["L", "mol/L"]}
             />
           </div>
         </div>

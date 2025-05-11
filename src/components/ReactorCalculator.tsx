@@ -12,9 +12,9 @@ interface ReactorCalculatorProps {
   title: string;
   description: string;
   inputs: ReactorInput[];
-  calculateResult: (values: Record<string, number>) => number;
-  resultLabel: string;
-  resultUnit: string;
+  calculateResult: (values: Record<string, number>) => [number, number]; // Updated to return an array
+  resultLabels: [string, string]; // Updated to handle two result labels
+  resultUnits: [string, string]; // Updated to handle two result units
 }
 
 const ReactorCalculator = ({
@@ -22,11 +22,11 @@ const ReactorCalculator = ({
   description,
   inputs,
   calculateResult,
-  resultLabel,
-  resultUnit,
+  resultLabels,
+  resultUnits,
 }: ReactorCalculatorProps) => {
   const [values, setValues] = useState<Record<string, number>>({});
-  const [result, setResult] = useState<number | null>(null);
+  const [results, setResults] = useState<[number, number] | null>(null); // Updated to store two results
 
   const handleInputChange = (name: string, value: string) => {
     if (value === "") {
@@ -46,17 +46,17 @@ const ReactorCalculator = ({
 
   const handleCalculate = () => {
     try {
-      const calculatedResult = calculateResult(values);
-      setResult(calculatedResult);
+      const calculatedResults = calculateResult(values); // Get two results
+      setResults(calculatedResults);
     } catch (error) {
       console.error("Calculation error:", error);
-      setResult(null);
+      setResults(null);
     }
   };
 
   const handleReset = () => {
     setValues({});
-    setResult(null);
+    setResults(null);
   };
 
   return (
@@ -98,14 +98,22 @@ const ReactorCalculator = ({
           </Button>
         </div>
 
-        {result !== null && (
+        {results !== null && (
           <div className="mt-6 p-4 bg-cre-light-gray rounded-lg border border-gray-300">
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Result:</h3>
-            <div className="flex items-center justify-center space-x-2">
-              <span className="text-lg font-medium">{resultLabel}:</span>
-              <span className="text-2xl font-bold text-cre-navy">
-                {result.toFixed(4)} {resultUnit}
-              </span>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">Results:</h3>
+            <div className="flex flex-col items-center space-y-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-lg font-medium">{resultLabels[0]}:</span>
+                <span className="text-2xl font-bold text-cre-navy">
+                  {results[0].toFixed(8)} {resultUnits[0]}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-lg font-medium">{resultLabels[1]}:</span>
+                <span className="text-2xl font-bold text-cre-navy">
+                  {results[1].toFixed(4)} {resultUnits[1]}
+                </span>
+              </div>
             </div>
           </div>
         )}
