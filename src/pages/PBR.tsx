@@ -146,7 +146,7 @@ const PBR = () => {
               description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change). Pressure drop calculations can be done only with ε = 0."
               inputs={pbrInputs}
               calculateResult={calculatePBRCatalyst}
-              resultLabels={["Catalyst Weight", "Outlet Conc."]}
+              resultLabels={["Catalyst Weight", "Outlet Concentration"]}
               resultUnits={["kg", "mol/L"]}
             />
           </div>

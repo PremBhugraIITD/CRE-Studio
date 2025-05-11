@@ -124,7 +124,7 @@ const PFR = () => {
               set ε=0."
               inputs={pfrInputs}
               calculateResult={calculatePFRVolume}
-              resultLabels={["Reactor Volume", "Outlet Conc."]}
+              resultLabels={["Reactor Volume", "Outlet Concentration"]}
               resultUnits={["L", "mol/L"]}
             />
           </div>

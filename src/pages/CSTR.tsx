@@ -114,7 +114,7 @@ const CSTR = () => {
               set ε=0."
               inputs={cstrInputs}
               calculateResult={calculateCSTRVolume}
-              resultLabels={["Reactor Volume", "Outlet Conc."]}
+              resultLabels={["Reactor Volume", "Outlet Concentration"]}
               resultUnits={["L", "mol/L"]}
             />
           </div>
