@@ -6,95 +6,119 @@ const PBR = () => {
   const pbrInputs = [
     { label: "Conversion", name: "conversion", unit: "X" },
     { label: "Inlet Concentration", name: "initialConc", unit: "mol/L" },
-    { label: "Volumetric Flow Rate", name: "flowRate", unit: "L/hr" },
+    { label: "Flow Rate", name: "flowRate", unit: "L/hr" },
     { label: "Reaction Order", name: "order", unit: "n" },
     { label: "Temperature", name: "temperature", unit: "K" },
     { label: "Rate Constant", name: "k300", unit: "At 300K" },
     { label: "Activation Energy", name: "activationEnergy", unit: "kJ/mol" },
     { label: "Epsilon", name: "epsilon", unit: "ε" },
+    { label: "Pressure‐Drop Param.", name: "alpha", unit: "α" },
   ];
 
   const calculatePBRCatalyst = (
     vals: Record<string, number>
   ): [number, number] => {
-    const R = 8.314; // J/(mol·K)
+    const R = 8.314;
 
-    // --- INPUT VALIDATION ---
-    const X = vals.conversion;
-    const C0 = vals.initialConc;
-    const F0_L = vals.flowRate;
-    const n = vals.order;
-    const T = vals.temperature;
-    const k300 = vals.k300;
-    const Ea = vals.activationEnergy;
+    // 1. Basic validations
+    const {
+      conversion: X,
+      initialConc: C0_L,
+      flowRate: F0_L,
+      order: n,
+      temperature: T,
+      k300,
+      activationEnergy: Ea_kJ,
+      epsilon: ε = 0,
+      alpha: α = 0,
+    } = vals;
 
-    if (X == null || X < 0 || X > 1) {
+    if ([X, C0_L, F0_L, n, T, k300, Ea_kJ].some((v) => v == null || isNaN(v))) {
+      alert("Please fill in all required fields with valid numbers.");
+      throw new Error("Missing inputs");
+    }
+    if (X <= 0 || X >= 1) {
       alert("Conversion must be between 0 and 1.");
       throw new Error("Invalid conversion");
     }
-    if (C0 == null || C0 <= 0) {
-      alert("Inlet concentration must be positive.");
-      throw new Error("Invalid concentration");
+    if (
+      C0_L <= 0 ||
+      F0_L <= 0 ||
+      n <= 0 ||
+      T <= 0 ||
+      T > 2000 ||
+      k300 <= 0 ||
+      Ea_kJ < 0
+    ) {
+      alert("One or more inputs out of valid range (positive, T≤2000K).");
+      throw new Error("Invalid input range");
     }
-    if (F0_L == null || F0_L <= 0) {
-      alert("Flow rate must be positive.");
-      throw new Error("Invalid flow rate");
+    if (α < 0) {
+      alert("Epsilon and alpha must be >= 0.");
+      throw new Error("Negative ε/α");
     }
-    if (n == null || n < 0) {
-      alert("Reaction order must be a positive number.");
-      throw new Error("Invalid reaction order");
-    }
-    if (T == null || T <= 0 || T > 2000) {
-      alert("Temperature must be >0 K and ≤2000 K.");
-      throw new Error("Invalid temperature");
-    }
-    if (k300 == null || k300 <= 0) {
-      alert("Rate constant (at 300K) must be positive.");
-      throw new Error("Invalid rate constant");
-    }
-    if (Ea == null || Ea < 0) {
-      alert("Activation energy must be non-negative.");
-      throw new Error("Invalid activation energy");
+    if (ε > 0 && α > 0) {
+      alert("Cannot handle both ε>0 and α>0 simultaneously.");
+      throw new Error("Mutually exclusive ε/α");
     }
 
-    // 1. Convert to SI
-    const C0_m3 = C0 * 1e3; // mol/L → mol/m³
+    // 2. Convert to SI
+    const C0_m3 = C0_L * 1e3; // mol/L → mol/m³
     const F0 = F0_L / 1000 / 3600; // L/hr → m³/s
     const FA0 = F0 * C0_m3; // mol/s
-    const Ea_J = Ea * 1e3; // kJ/mol → J/mol
-    const ε = vals.epsilon ?? 0;
+    const Ea = Ea_kJ * 1e3; // kJ/mol → J/mol
 
-    // 2. Arrhenius correction
-    const kT = k300 * Math.exp((-Ea_J / R) * (1 / T - 1 / 300));
+    // Arrhenius
+    const kT = k300 * Math.exp((-Ea / R) * (1 / T - 1 / 300));
 
-    // 3. Concentration profile
-    const CA = (x: number) => (C0_m3 * (1 - x)) / (1 + ε * x);
+    // Helper for CA without pressure drop
+    const CA_noPD = (x: number) => (C0_m3 * (1 - x)) / (1 + ε * x);
 
-    // 4. Integrand: dW/dX = FA0 / [kT * CA^n]
-    const integrand = (x: number) => FA0 / (kT * Math.pow(CA(x), n));
+    // Case 2 & liquid (ε>0 & α=0, or both zero): trapezoid
+    if (α === 0) {
+      const integrand = (x: number) => {
+        const CA = CA_noPD(x);
+        return FA0 / (kT * Math.pow(CA, n));
+      };
+      const steps = 1000,
+        dX = X / steps;
+      let sum = 0.5 * (integrand(0) + integrand(X));
+      for (let i = 1; i < steps; i++) sum += integrand(i * dX);
+      const W_kg = sum * dX; // actually mass equivalent
+      const Cout_m3 = CA_noPD(X);
+      const Cout_L = Cout_m3 / 1e3;
+      if (!(W_kg > 0) || !(Cout_L >= 0)) {
+        alert("Calculated values invalid; check inputs.");
+        throw new Error("Invalid result");
+      }
+      return [W_kg, Cout_L];
+    }
 
-    // 5. Trapezoidal integration
-    const steps = 1000;
-    const dX = X / steps;
-    let sum = 0.5 * (integrand(0) + integrand(X));
-    for (let i = 1; i < steps; i++) sum += integrand(i * dX);
-    const W_kg = sum * dX; // catalyst mass in kg
-
-    // 6. Outlet concentration (mol/m³ → mol/L)
-    const Cout_m3 = (C0_m3 * (1 - X)) / (1 + ε * X);
+    // Case 3: pressure drop (ε=0 & α>0)
+    let W = 0,
+      x = 0,
+      step = 0.001;
+    while (x < X) {
+      const pRat = Math.sqrt(Math.max(0, 1 - α * W));
+      const CA = CA_noPD(x) * pRat;
+      const rate = kT * Math.pow(CA, n);
+      const dx = (rate / FA0) * step;
+      x += dx;
+      W += step;
+      if (1 - α * W <= 0) {
+        alert("Pressure drop too great before reaching desired conversion.");
+        throw new Error("Nonphysical pressure drop");
+      }
+    }
+    // final outlet conc with PD
+    const pFinal = Math.sqrt(1 - α * W);
+    const Cout_m3 = CA_noPD(X) * pFinal;
     const Cout_L = Cout_m3 / 1e3;
-
-    // --- OUTPUT VALIDATION ---
-    if (!(W_kg > 0) || !isFinite(W_kg) || isNaN(W_kg)) {
-      alert("Calculated catalyst mass is invalid; check inputs.");
-      throw new Error("Invalid catalyst mass");
+    if (!(W > 0) || !(Cout_L >= 0)) {
+      alert("Calculated values invalid; check inputs.");
+      throw new Error("Invalid result");
     }
-    if (!(Cout_L >= 0) || !isFinite(Cout_L) || isNaN(Cout_L)) {
-      alert("Calculated outlet concentration is invalid; check inputs.");
-      throw new Error("Invalid outlet concentration");
-    }
-
-    return [W_kg, Cout_L];
+    return [W, Cout_L];
   };
 
   return (
@@ -115,11 +139,11 @@ const PBR = () => {
           {/* Right */}
           <div>
             <p className="text-gray-600 mb-4">
-              Computes catalyst mass (kg) and outlet concentration (mol/L).
+              Calculates catalyst weight (Kg) and outlet concentration (mol/L).
             </p>
             <ReactorCalculator
               title="PBR Catalyst Mass & Outlet Conc."
-              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For reactions with pressure drop, enter ε and α which are both set to 0 by default."
+              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change). Pressure drop calculations can be done only with ε = 0."
               inputs={pbrInputs}
               calculateResult={calculatePBRCatalyst}
               resultLabels={["Catalyst Mass", "Outlet Conc."]}
