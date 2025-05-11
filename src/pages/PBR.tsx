@@ -69,7 +69,7 @@ const PBR = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left column: placeholder */}
           <div className="bg-[#ea384c] rounded-lg h-[300px] md:h-auto flex items-center justify-center text-white font-bold">
-            PBR Reactor Image Placeholder
+            <img src="/pbr.jpg" className="w-[100%] h-[100%]" />
           </div>
 
           {/* Right column: calculator */}

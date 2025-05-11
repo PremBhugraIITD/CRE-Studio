@@ -68,7 +68,7 @@ const PFR = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left: image placeholder */}
           <div className="bg-[#ea384c] rounded-lg h-[300px] md:h-auto flex items-center justify-center text-white font-bold">
-            PFR Reactor Image Placeholder
+            <img src="/pfr.jpg" className="w-[100%] h-[100%]" />
           </div>
 
           {/* Right: calculator */}

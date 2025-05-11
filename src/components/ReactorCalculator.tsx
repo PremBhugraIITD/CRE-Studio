@@ -28,21 +28,21 @@ const ReactorCalculator = ({
   const [values, setValues] = useState<Record<string, number>>({});
   const [result, setResult] = useState<number | null>(null);
 
-const handleInputChange = (name: string, value: string) => {
-  if (value === "") {
-    setValues((prev) => {
-      const updatedValues = { ...prev };
-      delete updatedValues[name]; // Remove the key when the input is empty
-      return updatedValues;
-    });
-  } else {
-    const numValue = parseFloat(value);
-    setValues((prev) => ({
-      ...prev,
-      [name]: isNaN(numValue) ? 0 : numValue,
-    }));
-  }
-};
+  const handleInputChange = (name: string, value: string) => {
+    if (value === "") {
+      setValues((prev) => {
+        const updatedValues = { ...prev };
+        delete updatedValues[name]; // Remove the key when the input is empty
+        return updatedValues;
+      });
+    } else {
+      const numValue = parseFloat(value);
+      setValues((prev) => ({
+        ...prev,
+        [name]: isNaN(numValue) ? 0 : numValue,
+      }));
+    }
+  };
 
   const handleCalculate = () => {
     try {
