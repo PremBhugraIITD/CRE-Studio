@@ -12,7 +12,6 @@ const PBR = () => {
     { label: "Rate Constant", name: "k300", unit: "At 300K" },
     { label: "Activation Energy", name: "activationEnergy", unit: "kJ/mol" },
     { label: "Epsilon", name: "epsilon", unit: "ε" },
-    { label: "Pressure Factor", name: "pressureFactor", unit: "P/P₀" },
   ];
 
   const calculatePBRCatalyst = (
@@ -28,7 +27,6 @@ const PBR = () => {
     const T = vals.temperature;
     const k300 = vals.k300;
     const Ea = vals.activationEnergy;
-    const φ = vals.pressureFactor ?? 1;
 
     if (X == null || X < 0 || X > 1) {
       alert("Conversion must be between 0 and 1.");
@@ -58,10 +56,6 @@ const PBR = () => {
       alert("Activation energy must be non-negative.");
       throw new Error("Invalid activation energy");
     }
-    if (φ <= 0) {
-      alert("Pressure factor P/P₀ must be positive.");
-      throw new Error("Invalid pressure factor");
-    }
 
     // 1. Convert to SI
     const C0_m3 = C0 * 1e3; // mol/L → mol/m³
@@ -74,7 +68,7 @@ const PBR = () => {
     const kT = k300 * Math.exp((-Ea_J / R) * (1 / T - 1 / 300));
 
     // 3. Concentration profile
-    const CA = (x: number) => (C0_m3 * φ * (1 - x)) / (1 + ε * x);
+    const CA = (x: number) => (C0_m3 * (1 - x)) / (1 + ε * x);
 
     // 4. Integrand: dW/dX = FA0 / [kT * CA^n]
     const integrand = (x: number) => FA0 / (kT * Math.pow(CA(x), n));
@@ -87,7 +81,7 @@ const PBR = () => {
     const W_kg = sum * dX; // catalyst mass in kg
 
     // 6. Outlet concentration (mol/m³ → mol/L)
-    const Cout_m3 = (C0_m3 * φ * (1 - X)) / (1 + ε * X);
+    const Cout_m3 = (C0_m3 * (1 - X)) / (1 + ε * X);
     const Cout_L = Cout_m3 / 1e3;
 
     // --- OUTPUT VALIDATION ---
@@ -125,8 +119,7 @@ const PBR = () => {
             </p>
             <ReactorCalculator
               title="PBR Catalyst Mass & Outlet Conc."
-              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change) and P/P₀. For liquid-phase,
-              set ε=0 & P/P₀=1."
+              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For reactions with pressure drop, enter ε and α which are both set to 0 by default."
               inputs={pbrInputs}
               calculateResult={calculatePBRCatalyst}
               resultLabels={["Catalyst Mass", "Outlet Conc."]}
