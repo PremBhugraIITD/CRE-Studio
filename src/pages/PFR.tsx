@@ -120,8 +120,8 @@ const PFR = () => {
             </p>
             <ReactorCalculator
               title="PFR Calculator"
-              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change) and P/P₀. For liquid-phase,
-              set ε=0 & P/P₀=1."
+              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change). For liquid-phase,
+              set ε=0."
               inputs={pfrInputs}
               calculateResult={calculatePFRVolume}
               resultLabels={["Reactor Volume", "Outlet Conc."]}

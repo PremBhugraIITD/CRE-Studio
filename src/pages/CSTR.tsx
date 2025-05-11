@@ -110,8 +110,8 @@ const CSTR = () => {
             </p>
             <ReactorCalculator
               title="CSTR Calculator"
-              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ).For gas-phase: enter ε (mole change) and P/P₀. For liquid-phase,
-              set ε=0 and P/P₀=1."
+              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change). For liquid-phase,
+              set ε=0."
               inputs={cstrInputs}
               calculateResult={calculateCSTRVolume}
               resultLabels={["Reactor Volume", "Outlet Conc."]}

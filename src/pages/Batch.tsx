@@ -115,9 +115,8 @@ const Batch = () => {
             </p>
             <ReactorCalculator
               title="Batch Reactor Time & Outlet Conc."
-              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ).
-              For gas-phase: enter ε (mole change) and P/P₀. For liquid-phase,
-              set ε=0 and P/P₀=1."
+              description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change). For liquid-phase,
+              set ε=0."
               inputs={batchInputs}
               calculateResult={calculateBatchTime}
               resultLabels={["Reaction Time", "Outlet Concentration"]}
