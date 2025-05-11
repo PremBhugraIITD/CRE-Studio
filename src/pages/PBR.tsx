@@ -125,7 +125,7 @@ const PBR = () => {
     <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">
-          PBR Catalyst Mass Calculator
+          PBR Calculations
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left */}
@@ -139,14 +139,14 @@ const PBR = () => {
           {/* Right */}
           <div>
             <p className="text-gray-600 mb-4">
-              Calculates catalyst weight (Kg) and outlet concentration (mol/L).
+              Computes catalyst weight (Kg) and outlet concentration (mol/L).
             </p>
             <ReactorCalculator
-              title="PBR Catalyst Mass & Outlet Conc."
+              title="Catalyst Weight & Outlet Concentration"
               description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change). Pressure drop calculations can be done only with ε = 0."
               inputs={pbrInputs}
               calculateResult={calculatePBRCatalyst}
-              resultLabels={["Catalyst Mass", "Outlet Conc."]}
+              resultLabels={["Catalyst Weight", "Outlet Conc."]}
               resultUnits={["kg", "mol/L"]}
             />
           </div>

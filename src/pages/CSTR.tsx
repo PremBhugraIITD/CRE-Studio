@@ -92,7 +92,7 @@ const CSTR = () => {
     <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">
-          CSTR Volume & Outlet Conc.
+          CSTR Calculations
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left column - Reactor image */}
@@ -109,7 +109,7 @@ const CSTR = () => {
               Computes reactor volume (L) and outlet concentration (mol/L).
             </p>
             <ReactorCalculator
-              title="CSTR Calculator"
+              title="Reactor Volume & Outlet Concentration"
               description="Rate of reaction should follow a Power Law model in terms of the concentration of a single species only (rₐ = -kCₐⁿ). For gas-phase: enter ε (mole change). For liquid-phase,
               set ε=0."
               inputs={cstrInputs}
