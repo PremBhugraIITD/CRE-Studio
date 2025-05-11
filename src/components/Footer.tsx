@@ -62,13 +62,14 @@ const Footer = () => {
               </div>
             </div>
 
-            <a
-              href="https://home.iitd.ac.in/"
-              target="_blank"
-              className="absolute h-[20%] w-[12%] ml-[23%] mt-4"
-            >
-              <img src="/iitd-logo.png" alt="IIT Delhi Logo" className="w-auto h-auto"/>
-            </a>
+<a
+  href="https://home.iitd.ac.in/"
+  target="_blank"
+  className="absolute h-[20%] w-[12%] ml-[23%] mt-4 hidden md:block"
+>
+  <img src="/iitd-logo.png" alt="IIT Delhi Logo" className="w-auto h-auto" />
+</a>
+
 
             <p className="text-sm mt-6 text-gray-300">
               © {new Date().getFullYear()} Copyright IIT Delhi. All rights
