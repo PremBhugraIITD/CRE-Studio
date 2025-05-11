@@ -4,19 +4,19 @@ import ReactorCalculator from "../components/ReactorCalculator";
 
 const Batch = () => {
   const batchInputs = [
-    { label: "Conversion (X)", name: "conversion", unit: "" },
-    { label: "Initial Conc. C₀ (mol/L)", name: "initialConc", unit: "mol/L" },
-    { label: "Reaction Order (n)", name: "order", unit: "" },
-    { label: "Temperature T (K)", name: "temperature", unit: "K" },
-    { label: "k @ 300 K (1/s)", name: "k300", unit: "1/s" },
+    { label: "Conversion", name: "conversion", unit: "X" },
+    { label: "Inlet Concentration", name: "initialConc", unit: "mol/L" },
+    { label: "Reaction Order", name: "order", unit: "n" },
+    { label: "Temperature", name: "temperature", unit: "K" },
+    { label: "Rate Constant", name: "k300", unit: "At 300K" },
     {
-      label: "Activation Energy Eₐ (kJ/mol)",
+      label: "Activation Energy",
       name: "activationEnergy",
       unit: "kJ/mol",
     },
     // gas-phase parameters:
-    { label: "Epsilon (Δn/n₀)", name: "epsilon", unit: "" },
-    { label: "P / P₀ factor", name: "pressureFactor", unit: "" },
+    { label: "Epsilon", name: "epsilon", unit: "ε" },
+    { label: "Pressure Factor", name: "pressureFactor", unit: "P/Po" },
   ];
 
   const calculateBatchTime = (vals: Record<string, number>) => {
@@ -72,15 +72,13 @@ const Batch = () => {
           <div>
             <div className="mb-6">
               <p className="text-gray-600">
-                Computes reaction time by numerically integrating dX/dt =
-                k(T)·CA(X)^n with gas‐phase volume change. For liquid phase set
-                ε=0, P/P₀=1.
+                aA + bB → cC + dD
               </p>
             </div>
 
             <ReactorCalculator
               title="Batch Reactor Time Calculation"
-              description="Numerical integration of the batch‐reactor design equation with gas‐phase expansion & Arrhenius kinetics."
+              description="For gas phase reactions, enter ε (mole change) and P/P₀. For liquid phase, set ε=0 and P/P₀=1 or leave the fields empty."
               inputs={batchInputs}
               calculateResult={calculateBatchTime}
               resultLabel="Reaction Time"

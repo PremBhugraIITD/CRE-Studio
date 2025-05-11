@@ -72,7 +72,7 @@ const ReactorCalculator = ({
           {inputs.map((input) => (
             <div key={input.name} className="input-field">
               <label htmlFor={input.name} className="input-label">
-                {input.label} ({input.unit})
+                {input.label} ({input.unit}) :
               </label>
               <input
                 id={input.name}

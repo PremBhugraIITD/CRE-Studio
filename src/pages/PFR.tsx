@@ -4,19 +4,19 @@ import ReactorCalculator from "../components/ReactorCalculator";
 
 const PFR = () => {
   const pfrInputs = [
-    { label: "Conversion (X)", name: "conversion", unit: "" },
-    { label: "Initial Conc. C₀ (mol/L)", name: "initialConc", unit: "mol/L" },
-    { label: "Volumetric Flow F₀ (L/hr)", name: "flowRate", unit: "L/hr" },
-    { label: "Reaction Order (n)", name: "order", unit: "" },
-    { label: "Temperature T (K)", name: "temperature", unit: "K" },
-    { label: "k @ 300 K (1/s)", name: "k300", unit: "1/s" },
+    { label: "Conversion", name: "conversion", unit: "X" },
+    { label: "Inlet Concentration", name: "initialConc", unit: "mol/L" },
+    { label: "Volumetric Flow Rate", name: "flowRate", unit: "L/hr" },
+    { label: "Reaction Order", name: "order", unit: "n" },
+    { label: "Temperature", name: "temperature", unit: "K" },
+    { label: "Rate Constant", name: "k300", unit: "At 300K" },
     {
-      label: "Activation Energy Eₐ (kJ/mol)",
+      label: "Activation Energy",
       name: "activationEnergy",
       unit: "kJ/mol",
     },
-    { label: "Epsilon (Δn/n₀)", name: "epsilon", unit: "" },
-    { label: "P / P₀ factor", name: "pressureFactor", unit: "" },
+    { label: "Epsilon", name: "epsilon", unit: "ε" },
+    { label: "Pressure Factor", name: "pressureFactor", unit: "P/Po" },
   ];
 
   const calculatePFRVolume = (vals: Record<string, number>) => {
@@ -62,7 +62,7 @@ const PFR = () => {
     <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">
-          PFR Calculator
+          PFR Volume Calculator
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -74,15 +74,12 @@ const PFR = () => {
           {/* Right: calculator */}
           <div>
             <div className="mb-6">
-              <p className="text-gray-600">
-                Compute gas-phase or liquid PFR volume by integrating 0→X with
-                Arrhenius kinetics. For liquid phase: set ε=0, P/P₀=1.
-              </p>
+              <p className="text-gray-600">aA + bB → cC + dD</p>
             </div>
 
             <ReactorCalculator
               title="PFR Volume Calculation"
-              description="Numerical integration of PFR mole balance with gas-phase volume change & Arrhenius kinetics."
+              description="For gas phase reactions, enter ε (mole change) and P/P₀. For liquid phase, set ε=0 and P/P₀=1 or leave the fields empty."
               inputs={pfrInputs}
               calculateResult={calculatePFRVolume}
               resultLabel="Reactor Volume"

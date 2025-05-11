@@ -4,27 +4,27 @@ import ReactorCalculator from "../components/ReactorCalculator";
 
 const CSTR = () => {
   const cstrInputs = [
-    { label: "Conversion (X)", name: "conversion", unit: "" },
-    { label: "Initial Conc. C₀ (mol/L)", name: "initialConc", unit: "mol/L" },
-    { label: "Volumetric Flow F₀ (L/hr)", name: "flowRate", unit: "L/hr" },
-    { label: "Reaction Order (n)", name: "order", unit: "" },
-    { label: "Temperature T (K)", name: "temperature", unit: "K" },
-    { label: "k @ 300 K (1/s)", name: "k300", unit: "1/s" },
+    { label: "Conversion", name: "conversion", unit: "X" },
+    { label: "Inlet Concentration", name: "initialConc", unit: "mol/L" },
+    { label: "Volumetric Flow Rate", name: "flowRate", unit: "L/hr" },
+    { label: "Reaction Order", name: "order", unit: "n" },
+    { label: "Temperature T", name: "temperature", unit: "K" },
+    { label: "Rate Constant", name: "k300", unit: "At 300K" },
     {
-      label: "Activation Energy Eₐ (kJ/mol)",
+      label: "Activation Energy",
       name: "activationEnergy",
       unit: "kJ/mol",
     },
     // New gas-phase parameters:
     {
-      label: "Epsilon (Δn/n₀)",
+      label: "Epsilon",
       name: "epsilon",
-      unit: "",
+      unit: "ε",
     },
     {
-      label: "P / P₀ factor",
+      label: "Pressure Factor",
       name: "pressureFactor",
-      unit: "",
+      unit: "P/Po",
     },
   ];
 
@@ -65,7 +65,7 @@ const CSTR = () => {
     <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">
-          CSTR Calculator
+          CSTR Volume Calculator
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -77,15 +77,12 @@ const CSTR = () => {
           {/* Right column - Reactor calculator */}
           <div>
             <div className="mb-6">
-              <p className="text-gray-600">
-                Enter conversion, flow, kinetics, temperature—and for gas‐phase
-                only, ε (mole‐change) and P/P₀—to compute reactor volume.
-              </p>
+              <p className="text-gray-600">aA + bB → cC + dD</p>
             </div>
 
             <ReactorCalculator
               title="CSTR Volume Calculation"
-              description="Handles both liquid (ε=0, P/P₀=1) and gas‐phase (ε≠0 or P/P₀≠1) cases with Arrhenius kinetics."
+              description="For gas phase reactions, enter ε (mole change) and P/P₀. For liquid phase, set ε=0 and P/P₀=1 or leave the fields empty."
               inputs={cstrInputs}
               calculateResult={calculateCSTRVolume}
               resultLabel="Reactor Volume"

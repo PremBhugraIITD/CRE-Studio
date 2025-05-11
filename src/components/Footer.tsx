@@ -4,10 +4,10 @@ import { ExternalLink } from "lucide-react";
 
 const Footer = () => {
   const teamMembers = [
-    { name: "Prem Bhugra", email: "ch7221038@iitd.ac.com" },
-    { name: "Shaurya Kumar Maurya", email: "ch7221495@iitd.ac.com" },
-    { name: "Rahul Arvind Masand", email: "ch7221476@iitd.ac.com" },
-    { name: "Shubham Chawla", email: "ch7221507@iitd.ac.com" },
+    { name: "Prem Bhugra", email: "ch7221038@iitd.ac.in" },
+    { name: "Shaurya Kumar Maurya", email: "ch7221495@iitd.ac.in" },
+    { name: "Rahul Arvind Masand", email: "ch7221476@iitd.ac.in" },
+    { name: "Shubham Chawla", email: "ch7221507@iitd.ac.in" },
   ];
 
   return (

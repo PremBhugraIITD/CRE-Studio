@@ -4,19 +4,19 @@ import ReactorCalculator from "../components/ReactorCalculator";
 
 const PBR = () => {
   const pbrInputs = [
-    { label: "Conversion (X)", name: "conversion", unit: "" },
-    { label: "Initial Conc. C₀ (mol/L)", name: "initialConc", unit: "mol/L" },
-    { label: "Volumetric Flow F₀ (L/hr)", name: "flowRate", unit: "L/hr" },
-    { label: "Reaction Order (n)", name: "order", unit: "" },
-    { label: "Temperature T (K)", name: "temperature", unit: "K" },
-    { label: "k @ 300 K (1/s·kg⁻¹)", name: "k300", unit: "1/s·kg⁻¹" },
+    { label: "Conversion", name: "conversion", unit: "X" },
+    { label: "Inlet Concentration", name: "initialConc", unit: "mol/L" },
+    { label: "Volumetric Flow Rate", name: "flowRate", unit: "L/hr" },
+    { label: "Reaction Order", name: "order", unit: "n" },
+    { label: "Temperature", name: "temperature", unit: "K" },
+    { label: "Rate Constant", name: "k300", unit: "At 300K" },
     {
-      label: "Activation Energy Eₐ (kJ/mol)",
+      label: "Activation Energy",
       name: "activationEnergy",
       unit: "kJ/mol",
     },
-    { label: "Epsilon (Δn/n₀)", name: "epsilon", unit: "" },
-    { label: "P / P₀ factor", name: "pressureFactor", unit: "" },
+    { label: "Epsilon", name: "epsilon", unit: "epsilon" },
+    { label: "Pressure Factor", name: "pressureFactor", unit: "P/Po" },
   ];
 
   const calculatePBRCatalyst = (vals: Record<string, number>) => {
@@ -63,7 +63,7 @@ const PBR = () => {
     <Layout isReactorPage>
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-center mb-6 text-cre-navy">
-          Packed Bed Reactor Catalyst Calculator
+          PBR Catalyst Weight Calculator
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -75,15 +75,12 @@ const PBR = () => {
           {/* Right column: calculator */}
           <div>
             <div className="mb-6">
-              <p className="text-gray-600">
-                Integrates W = ∫₀ˣ FA₀ / [k(T)·Cₐ(X)ⁿ] dX to find catalyst mass
-                (kg). For liquid phase, set ε = 0 and P/P₀ = 1.
-              </p>
+              <p className="text-gray-600">aA + bB → cC + dD</p>
             </div>
 
             <ReactorCalculator
               title="PBR Catalyst Mass Calculation"
-              description="Gas-phase PBR design with variable volume & Arrhenius kinetics."
+              description="For gas phase reactions, enter ε (mole change) and P/P₀. For liquid phase, set ε=0 and P/P₀=1 or leave the fields empty."
               inputs={pbrInputs}
               calculateResult={calculatePBRCatalyst}
               resultLabel="Catalyst Mass"
